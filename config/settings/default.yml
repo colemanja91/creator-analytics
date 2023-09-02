@@ -1,0 +1,3 @@
+twitch:
+  client_id: <%= ENV.fetch("TWITCH_CLIENT_ID", "") %>
+  client_secret: <%= ENV.fetch("TWITCH_CLIENT_SECRET", "") %>
