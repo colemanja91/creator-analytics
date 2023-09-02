@@ -23,7 +23,9 @@ class TwitchGraphqlService
       }
     GRAPHQL
 
-    run_query(query)["data"]
+    result = run_query(query)
+    puts result
+    result["data"]["user"]
   end
 
   private
@@ -60,7 +62,7 @@ class TwitchGraphqlService
     end
 
     json = JSON.parse(result.body)
-
+    puts json
     token = json.fetch("token")
     expiration = json.fetch("expiration")
 
@@ -75,7 +77,7 @@ class TwitchGraphqlService
   def conn(client_integrity = nil)
     headers = {
       "Content-Type" => "application/json",
-      "Client-ID" => Setting.twitch(:client_id)
+      "Client-ID" => Setting.twitch(:graphql_client_id)
     }
 
     headers["Client-Integrity"] = client_integrity unless client_integrity.nil?

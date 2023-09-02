@@ -25,8 +25,8 @@ class TwitchVideoUpdateService
   def update_users(user_ids:)
     user_ids.each do |user_id|
       user = TwitchUser.find_or_create_by(id: user_id)
-      #   byebug
-      if user.updated_at < 1.day.ago || user.new_record?
+
+      if user.updated_at < 1.day.ago || user.new_record? || Setting.twitch(:force_user_refresh)
         user_result = twitch_graphql_service.get_user(user_id)
         user.update!(
           login: user_result["login"],

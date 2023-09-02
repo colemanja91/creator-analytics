@@ -35,6 +35,8 @@ This would have been a lot more difficult to put together if not for the amazing
 
 ## Twitch API Credentials
 
+### Client ID and Client Secret
+
 * Go to the [Twitch Developer Console](https://dev.twitch.tv/console)
 * Click "Register Your Application"
 * Fill out the details
@@ -44,3 +46,21 @@ This would have been a lot more difficult to put together if not for the amazing
   * "I'm not a robot": probably?
 * Copy the "Client ID" value and set it as an environment variable: `TWITCH_CLIENT_ID`
 * Click "New Secret" and set it as an environment variable: `TWITCH_CLIENT_SECRET`
+
+### Client GraphQL Secret
+
+A few API requests go to Twitch's undocumented GraphQL API. Regular Application Client ID values won't work with these requests.
+
+* Go to [Twitch](https://twitch.tv)
+* Open your browser's developer console and go to the network tab
+* Filter requests by the string "gql"
+* In the request headers, look for a header called "Client-ID"
+* Copy that value and set it as an environment variable: `TWITCH_GRAPHQL_CLIENT_ID`
+
+## Running
+
+### Twitch user record refreshes
+
+Twitch user data isn't likely to change super often, so to avoid making a ton of unnecessary API calls I have the refresh logic limited to only call the Twitch GraphQL API either when a new `TwitchUser` record is created OR if it has been more than one day since the existing record was last updated.
+
+If changing logic within the app, or some other circumstance that requires fresh calls, you can force a refresh by setting the env var `TWITCH_FORCE_USER_REFRESH=true`. Just be sure to either remove this env var or set it to `false` when done!

@@ -1,3 +1,5 @@
 twitch:
   client_id: <%= ENV.fetch("TWITCH_CLIENT_ID", "") %>
   client_secret: <%= ENV.fetch("TWITCH_CLIENT_SECRET", "") %>
+  graphql_client_id: <%= ENV.fetch("TWITCH_GRAPHQL_CLIENT_ID", "") %>
+  force_user_refresh: <%= ENV.fetch("TWITCH_FORCE_USER_REFRESH", "false") == "true" %>
