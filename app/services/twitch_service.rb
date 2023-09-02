@@ -16,7 +16,7 @@ class TwitchService
 
   def add_game_by_name(name:)
     result = client.get_games(name: name).data.first
-    game = TwitchGame.find_or_create_by(id: result.id, name: result.name)
+    TwitchGame.find_or_create_by(id: result.id, name: result.name)
   end
 
   private

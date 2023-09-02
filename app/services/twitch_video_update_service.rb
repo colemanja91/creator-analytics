@@ -7,16 +7,16 @@ class TwitchVideoUpdateService
 
     update_users(user_ids: user_ids)
     videos.each do |video|
-        twitch_video = game.twitch_videos.find_or_create_by(id: video.id)
-        twitch_video.update!(
-          language: video.language,
-          title: video.title,
-          view_count: video.view_count,
-          video_type: video.type,
-          twitch_user_id: video.user_id,
-          duration: video.duration,
-          created_at: video.created_at
-        )
+      twitch_video = game.twitch_videos.find_or_create_by(id: video.id)
+      twitch_video.update!(
+        language: video.language,
+        title: video.title,
+        view_count: video.view_count,
+        video_type: video.type,
+        twitch_user_id: video.user_id,
+        duration: video.duration,
+        created_at: video.created_at
+      )
     end
   end
 
@@ -25,15 +25,15 @@ class TwitchVideoUpdateService
   def update_users(user_ids:)
     user_ids.each do |user_id|
       user = TwitchUser.find_or_create_by(id: user_id)
-    #   byebug
+      #   byebug
       if user.updated_at < 1.day.ago || user.new_record?
         user_result = twitch_graphql_service.get_user(user_id)
         user.update!(
-            login: user_result["login"],
-            follower_count: user_result["followers"]["totalCount"],
-            is_partner: user_result["roles"]["isPartner"],
-            is_affiliate: user_result["roles"]["isAffiliate"],
-            created_at: user_result["createdAt"]
+          login: user_result["login"],
+          follower_count: user_result["followers"]["totalCount"],
+          is_partner: user_result["roles"]["isPartner"],
+          is_affiliate: user_result["roles"]["isAffiliate"],
+          created_at: user_result["createdAt"]
         )
         rate_limit
       end
