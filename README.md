@@ -12,7 +12,6 @@ This would have been a lot more difficult to put together if not for the amazing
 
 * Add setup details
   * how to install each service, running setup script, etc
-* Add Twitch API Credentials steps
 * Add rake tasks
   * New game
   * Refresh videos and users for game
@@ -36,3 +35,12 @@ This would have been a lot more difficult to put together if not for the amazing
 
 ## Twitch API Credentials
 
+* Go to the [Twitch Developer Console](https://dev.twitch.tv/console)
+* Click "Register Your Application"
+* Fill out the details
+  * "Name" must be globally-unique for Twitch - I used a throwaway name appended to my username
+  * "OAuth Redirect URLs": `http://localhost`
+  * "Category": Application Integration
+  * "I'm not a robot": probably?
+* Copy the "Client ID" value and set it as an environment variable: `TWITCH_CLIENT_ID`
+* Click "New Secret" and set it as an environment variable: `TWITCH_CLIENT_SECRET`
