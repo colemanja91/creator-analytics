@@ -9,7 +9,7 @@ class TwitchVideoUpdateService
     game = TwitchGame.find(game_id)
     videos = twitch_service.videos_for_game(game_id: game_id, period: "month", language: language)
 
-    user_ids = videos.map { |v| v.user_id }
+    user_ids = videos.map { |v| v.user_id }.uniq
 
     update_users(user_ids: user_ids)
     videos.each do |video|
