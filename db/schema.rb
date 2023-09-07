@@ -10,14 +10,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_08_31_202342) do
+ActiveRecord::Schema[7.0].define(version: 2023_09_07_213559) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "categories", force: :cascade do |t|
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "twitch_games", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "category_id"
   end
 
   create_table "twitch_users", force: :cascade do |t|
@@ -42,6 +49,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_08_31_202342) do
     t.bigint "twitch_game_id"
   end
 
+  add_foreign_key "twitch_games", "categories"
   add_foreign_key "twitch_videos", "twitch_games"
   add_foreign_key "twitch_videos", "twitch_users"
 end

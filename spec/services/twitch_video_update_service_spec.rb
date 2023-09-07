@@ -16,7 +16,7 @@ RSpec.describe TwitchVideoUpdateService do
 
     context "no videos found" do
       before do
-        allow(twitch_service).to receive(:videos_for_game).with(game_id: game.id, period: "MONTH", language: language).and_return([])
+        allow(twitch_service).to receive(:videos_for_game).with(game_id: game.id, period: "month", language: language).and_return([])
       end
 
       it "does not error if no videos returned" do
@@ -47,7 +47,7 @@ RSpec.describe TwitchVideoUpdateService do
           "createdAt" => "2020-11-09T19:45:52.730354Z"
         })
 
-        allow(twitch_service).to receive(:videos_for_game).with(game_id: game.id, period: "MONTH", language: language).and_return(videos)
+        allow(twitch_service).to receive(:videos_for_game).with(game_id: game.id, period: "month", language: language).and_return(videos)
       end
 
       it "creates new videos" do
