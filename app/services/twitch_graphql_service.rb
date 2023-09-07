@@ -24,7 +24,6 @@ class TwitchGraphqlService
     GRAPHQL
 
     result = run_query(query)
-    puts result
     result["data"]["user"]
   end
 
@@ -38,7 +37,14 @@ class TwitchGraphqlService
       puts e.response[:body]
     end
 
-    JSON.parse(result.body)
+    response = JSON.parse(result.body)
+    if response["errors"].present?
+      message = response["errors"][0]["message"]
+      path = response["errors"][0]["path"].join(",")
+      raise StandardError.new("Twitch GraphQL Error: #{message}, #{path}")
+    end
+
+    response
   end
 
   def integrity_token
