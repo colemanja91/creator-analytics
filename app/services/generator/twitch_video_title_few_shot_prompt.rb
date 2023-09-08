@@ -6,8 +6,8 @@ module Generator
 
     attr_reader :category_id
 
-    def generate_prompt(max_followers, target_game_name, shot_size = 5)
-      segment = Segments::TwitchVideoByViewerToFollowerRatio.new(category_id: category_id, max_followers: max_followers).videos
+    def generate_prompt(target_game_name, shot_size = 5)
+      segment = Segments::TwitchVideoByViewerToFollowerRatio.new(category_id: category_id).videos
 
       prompt(segment, target_game_name, shot_size)
     end
