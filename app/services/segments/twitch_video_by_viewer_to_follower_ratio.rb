@@ -29,7 +29,7 @@ module Segments
         .where(twitch_user: {is_affiliate: false})
         .where(twitch_game: {category_id: category.id})
         .where("twitch_videos.created_at > ?", MAX_AGE_IN_DAYS.days.ago)
-        .where("twitch_videos.view_count > 0", MAX_AGE_IN_DAYS.days.ago)
+        .where("twitch_videos.view_count > ?", 0)
     end
   end
 end
