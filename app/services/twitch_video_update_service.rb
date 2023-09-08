@@ -1,13 +1,13 @@
 class TwitchVideoUpdateService
-  def fetch_and_update_videos_for_games!(game_ids:, language:)
+  def fetch_and_update_videos_for_games!(game_ids:, language:, period: "month")
     game_ids.each do |game_id|
-      fetch_and_update_videos_for_game!(game_id: game_id, language: language)
+      fetch_and_update_videos_for_game!(game_id: game_id, language: language, period: period)
     end
   end
 
-  def fetch_and_update_videos_for_game!(game_id:, language:)
+  def fetch_and_update_videos_for_game!(game_id:, language:, period:)
     game = TwitchGame.find(game_id)
-    videos = twitch_service.videos_for_game(game_id: game_id, period: "month", language: language)
+    videos = twitch_service.videos_for_game(game_id: game_id, period: period, language: language)
 
     user_ids = videos.map { |v| v.user_id }.uniq
 
