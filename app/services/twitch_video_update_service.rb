@@ -7,7 +7,7 @@ class TwitchVideoUpdateService
 
   def fetch_and_update_videos_for_game!(game_id:, language:, period:)
     game = TwitchGame.find(game_id)
-    videos = twitch_service.videos_for_game(game_id: game_id, period: period, language: language)
+    videos = twitch_service.fetch_videos(game_id: game_id, period: period, language: language)
 
     user_ids = videos.map { |v| v.user_id }.uniq
 
@@ -20,6 +20,24 @@ class TwitchVideoUpdateService
         view_count: video.view_count,
         video_type: video.type,
         twitch_user_id: video.user_id,
+        duration: video.duration,
+        created_at: video.created_at
+      )
+    end
+  end
+
+  def fetch_and_update_videos_for_user!(user_id:, language:, period:)
+    user = TwitchUser.find(user_id)
+    videos = twitch_service.fetch_videos(user_id: user_id, language: language, period: period)
+
+    # note: video payload does not include games
+    videos.each do |video|
+      twitch_video = user.twitch_videos.find_or_create_by(id: video.id)
+      twitch_video.update!(
+        language: video.language,
+        title: video.title,
+        view_count: video.view_count,
+        video_type: video.type,
         duration: video.duration,
         created_at: video.created_at
       )

@@ -10,13 +10,13 @@ RSpec.describe TwitchVideoUpdateService do
   end
 
   describe "#fetch_and_update_videos_for_game!" do
-    let(:subject) { described_class.new.fetch_and_update_videos_for_game!(game_id: game.id, language: language) }
+    let(:subject) { described_class.new.fetch_and_update_videos_for_game!(game_id: game.id, language: language, period: "month") }
     let(:game) { TwitchGame.create(name: "Pokemons") }
     let(:language) { "en" }
 
     context "no videos found" do
       before do
-        allow(twitch_service).to receive(:videos_for_game).with(game_id: game.id, period: "month", language: language).and_return([])
+        allow(twitch_service).to receive(:fetch_videos).with(game_id: game.id, period: "month", language: language).and_return([])
       end
 
       it "does not error if no videos returned" do
@@ -47,7 +47,7 @@ RSpec.describe TwitchVideoUpdateService do
           "createdAt" => "2020-11-09T19:45:52.730354Z"
         })
 
-        allow(twitch_service).to receive(:videos_for_game).with(game_id: game.id, period: "month", language: language).and_return(videos)
+        allow(twitch_service).to receive(:fetch_videos).with(game_id: game.id, period: "month", language: language).and_return(videos)
       end
 
       it "creates new videos" do
@@ -66,6 +66,40 @@ RSpec.describe TwitchVideoUpdateService do
         it "does not create a new user" do
           expect { subject }.not_to change { TwitchUser.count }
         end
+      end
+    end
+  end
+
+  describe "#fetch_and_update_videos_for_user!" do
+    let(:subject) { described_class.new.fetch_and_update_videos_for_user!(user_id: user.id, language: language, period: "month") }
+    let(:user) { TwitchUser.create(login: "allie_nord") }
+    let(:language) { "en" }
+
+    context "no videos found" do
+      before do
+        allow(twitch_service).to receive(:fetch_videos).with(user_id: user.id, period: "month", language: language).and_return([])
+      end
+
+      it "does not error if no videos returned" do
+        expect { subject }.not_to change { TwitchVideo.count }
+        expect { subject }.not_to change { TwitchGame.count }
+      end
+    end
+
+    context "videos found" do
+      let(:videos) do
+        [
+          Twitch::Video.new(id: 456, language: "en", title: "Awesome", view_count: 50, type: "archive", user_id: user.id, duration: "3m21s", created_at: "2020-11-09T19:45:52.730354Z"),
+          Twitch::Video.new(id: 789, language: "en", title: "mediocre", view_count: 0, type: "highlight", user_id: user.id, duration: "5m", created_at: "2020-11-09T19:45:52.730354Z")
+        ]
+      end
+
+      before do
+        allow(twitch_service).to receive(:fetch_videos).with(user_id: user.id, period: "month", language: language).and_return(videos)
+      end
+
+      it "creates new videos" do
+        expect { subject }.to change { TwitchVideo.count }.by(2)
       end
     end
   end

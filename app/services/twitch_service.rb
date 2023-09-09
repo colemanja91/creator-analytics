@@ -1,10 +1,11 @@
 class TwitchService
-  def videos_for_game(game_id:, period:, language:)
+  def fetch_videos(period:, language:, game_id: nil, user_id: nil)
+    raise StandardError.new("At least one of game_id or user_id is required") unless game_id || user_id
     has_more = true
     cursor = nil
     videos_json = []
     while has_more
-      videos = client.get_videos({game_id: game_id, period: period, language: language, after: cursor}.compact)
+      videos = client.get_videos({game_id: game_id, user_id: user_id, period: period, language: language, after: cursor}.compact)
       videos.data.map { |v| videos_json << v }
       cursor = videos.pagination.fetch("cursor", nil)
       has_more = cursor.present?
