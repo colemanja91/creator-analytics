@@ -5,6 +5,12 @@ class TwitchVideoUpdateService
     end
   end
 
+  def fetch_and_update_videos_for_users!(user_ids:, language:, period: "month")
+    user_ids.each do |user_id|
+      fetch_and_update_videos_for_user!(user_id: user_id, language: language, period: period)
+    end
+  end
+
   def fetch_and_update_videos_for_game!(game_id:, language:, period:)
     game = TwitchGame.find(game_id)
     videos = twitch_service.fetch_videos(game_id: game_id, period: period, language: language)

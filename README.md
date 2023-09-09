@@ -14,8 +14,6 @@ This would have been a lot more difficult to put together if not for the amazing
   * how to install each service, running setup script, etc
 * Add rake tasks
   * New game
-  * Refresh videos and users for game
-  * Add docs
 * Add `TwitchVideoExperiment` model
 * Add `TwitchVideoExperimentInput` model
 * Add `TwitchVideoExperimentGame` model
@@ -27,6 +25,7 @@ This would have been a lot more difficult to put together if not for the amazing
   * Store ranks as `TwitchVideoExperimentInput` records
 * Add link to OpenAI API to train and create a new prediction
 * Add rake tasks to setup new experiment with similar games
+* Make refresh tasks smarter (i.e. only refresh once per day)
 
 ## Setup
 
@@ -57,10 +56,62 @@ A few API requests go to Twitch's undocumented GraphQL API. Regular Application 
 * In the request headers, look for a header called "Client-ID"
 * Copy that value and set it as an environment variable: `TWITCH_GRAPHQL_CLIENT_ID`
 
+## Modeling
+
+### Categories
+
+Twitch does not currently have a high-level concept of a "category" - meaning individual games in a franchise must be browsed separately. An example of this is Pokemon: there are many games, but for discoverability, a lot of streamers list their stream under the latest title.
+
+In some analytics use cases, it can be helpful to have a category to group similar data points. In this app, the `Category` model fills this role.
+
+### Segments
+
+For growth purposes, my hypothesis is that while it can be helpful to look at what large streamers do, it's more immediately helpful to look at streamers who are a "next step" up from your current stage. Segments help define these groups for easy/consistent reference:
+
+* `Segments::TwitchUserPreAffiliate`:
+  * Not currently partner or affiliate
+  * Has more 5 - 49 followers (inclusive)
+  * _Note:_ There are other criteria for becoming a Twitch affiliate, but these are the only points we can easily scrape
+
 ## Running
 
-### Twitch user record refreshes
+### Refreshing videos for games
 
-Twitch user data isn't likely to change super often, so to avoid making a ton of unnecessary API calls I have the refresh logic limited to only call the Twitch GraphQL API either when a new `TwitchUser` record is created OR if it has been more than one day since the existing record was last updated.
+This rake task will refresh videos for all `TwitchGame` records within the last week:
 
-If changing logic within the app, or some other circumstance that requires fresh calls, you can force a refresh by setting the env var `TWITCH_FORCE_USER_REFRESH=true`. Just be sure to either remove this env var or set it to `false` when done!
+```sh
+bundle exec rake twitch:refresh_videos_for_all_games
+```
+
+It will also refresh `TwitchUser` records for the associated streamers. This call goes against the Twitch GraphQL API, which is currently a little more uncertain in terms of long-term stability. Because of that, the API is only called when there's a record we do not already have, OR when it's been more than a day since the existing record was last updated. 
+
+While doing initial DB setup or development work, it may be necessary to overwrite this, which can be done as follows:
+
+```sh
+TWITCH_FORCE_USER_REFRESH=true bundle exec rake twitch:refresh_videos_for_all_games
+```
+
+### Refreshing videos for games
+
+This rake task will refresh videos for all `Segments::TwitchUserPreAffiliate` users (may add general support for more segments as they are created):
+
+```sh
+bundle exec rake twitch:refresh_videos_for_pre_affiliates
+```
+
+Note that Twitch does not currently return `game_id` in their "Get Videos" endpoint (likely due to videos potentially belonging to multiple games), so `TwitchGame` records are not created/updated.
+
+## AI Prompts
+
+**THIS IS STILL A VERY ROUGH WORK-IN-PROGRESS**, is likely to change frequently, and I may forget to update this doc in the process.
+
+### By Viewer/Follower Ratio
+
+**Hypothesis**: Videos with a higher viewer/follower ratio have better titles
+
+**Caveats**:
+* Video titles are not 100% representative of stream titles, as streamers may change titles partway through a stream
+* Views driven by community engagement (i.e. social posts), go-live notifications for existing followers, and entertainment quality of the stream
+* Follow count may change at a later time and not be fully representative of data at time of the stream
+
+_Most_ of these caveats could be solved by storing better live data - i.e., stream starts, follows, live view count, etc. These data points are not available via Helix, but most are more accessible via webhooks. I have not implemented these yet due to only running this app locally for The Time Being. 
